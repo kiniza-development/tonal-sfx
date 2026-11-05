@@ -1,0 +1,47 @@
+name: Daily tonal session
+
+on:
+  schedule:
+    - cron: "0 8 * * *"   # 08:00 UTC daily (08:00 GMT / 09:00 BST)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-tonal
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Publish today's session
+        run: python3 src/daily_publish.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "tonal-sfx-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A daily index.html
+          if git diff --cached --quiet; then
+            echo "Nothing new to publish."
+            exit 0
+          fi
+          git commit -m "Daily tonal session $(TZ=Europe/London date +%F)"
+          git push origin HEAD:main
+
+      - name: Deploy to Netlify (optional, needs secrets)
+        if: ${{ env.NETLIFY_AUTH_TOKEN != '' }}
+        run: npx --yes netlify-cli@latest deploy --prod --dir . --site "${NETLIFY_SITE_ID:-7bd4e8ba-dacb-4613-b40a-c1813f7f20fa}" --message "Daily tonal session $(TZ=Europe/London date +%F)"
