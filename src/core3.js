@@ -48,7 +48,12 @@ function drawScope(cv,an){const [w,h,r]=fitCanvas(cv),g=cv.getContext('2d');g.fi
 
 /* ---------- app shell ---------- */
 const SUITE=[['01-drone-pad-lab.html','Drone & Pad Lab','Foundation'],['02-pulse-chord-loops.html','Pulse & Chord Loops','Mid'],
-  ['03-melody-phrases.html','Melody Phrases','Top'],['04-risers-hits-glue.html','Risers, Hits & Glue','Glue'],['05-layered-score-studio.html','Layered Score Studio','All four']];
+  ['03-melody-phrases.html','Melody Phrases','Top'],['04-risers-hits-glue.html','Risers, Hits & Glue','Glue'],['05-layered-score-studio.html','Layered Score Studio','All four'],
+  ['06-pedal-sub-beds.html','Pedal & Sub Beds','Foundation'],['07-glass-pluck-textures.html','Glass & Pluck Textures','Texture'],
+  ['08-arpeggio-cascade.html','Arpeggio Cascade','Mid'],['09-call-and-response.html','Call & Response','Top'],
+  ['10-tension-beds.html','Tension Beds','Foundation'],['11-brand-sting-factory.html','Brand Sting Factory','Glue'],
+  ['12-tuned-percussion.html','Tuned Percussion','Mid'],['13-harmonic-swells.html','Harmonic Swells','Foundation'],
+  ['14-counter-melody-weaver.html','Counter-Melody Weaver','Top'],['15-scene-underscore-mixer.html','Scene Underscore Mixer','Mix']];
 const LAYERS=[['Foundation','drones · pads · textures'],['Mid','pulse · chords · ostinato'],['Top','melodies · motifs'],['Glue','risers · hits · transitions']];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function ctlHTML(c){const id='c_'+c.id;
@@ -66,7 +71,7 @@ function mountApp(APP){
     APP.controls.forEach(sec=>sec.items.forEach(c=>{if(!q.has(c.id))return;const r=q.get(c.id);S.v[c.id]=c.type==='range'?+r:c.type==='toggle'?r==='1':(c.options&&c.options.map(String).includes(r)?(typeof c.options[0]==='number'?+r:r):S.v[c.id]);}));}catch(e){}
   const idx=APP.n-1;
   document.body.innerHTML=`<a class="skip" href="#transport">Skip to transport</a><div class="wrap">
-  <header class="top"><div><div class="eyebrow">Tonal SFX Suite · <b>Nº 0${APP.n}</b> / 05 · Layer <b>${APP.layerLabel}</b></div><h1>${APP.titleHTML}</h1><p class="tagline">${APP.tagline}</p></div>
+  <header class="top"><div><div class="eyebrow">Tonal SFX Suite · <b>Nº ${String(APP.n).padStart(2,'0')}</b> / 15 · Layer <b>${APP.layerLabel}</b></div><h1>${APP.titleHTML}</h1><p class="tagline">${APP.tagline}</p></div>
   <nav class="suite" aria-label="Apps in the suite"><a class="home" href="../index.html"><span class="bar"></span>← Hub<small>Home · <span data-daily>Daily</span></small></a>${SUITE.map((s,i)=>`<a href="${s[0]}"${i===idx?' aria-current="page"':''}><span class="bar"></span>${String(i+1).padStart(2,'0')} ${s[1]}<small>${s[2]}</small></a>`).join('')}</nav></header>
   <main class="grid"><section class="panel controls" aria-label="Controls"><form id="ctl" onsubmit="return false">
     <fieldset><legend>Key</legend><div class="keygrid" role="group" aria-label="Root note">${NOTE_NAMES.map((n,i)=>`<button type="button" data-root="${i}" aria-pressed="${i===S.root}">${n}</button>`).join('')}</div>

@@ -22,7 +22,17 @@ APPS = [("01-drone-pad-lab.html", "Drone & Pad Lab", "Foundation", "Lay a seamle
         ("02-pulse-chord-loops.html", "Pulse & Chord Loops", "Mid", "Bar-exact loop at the day's tempo."),
         ("03-melody-phrases.html", "Melody Phrases", "Top", "A motif for the focal moment."),
         ("04-risers-hits-glue.html", "Risers, Hits & Glue", "Glue", "Risers and impacts with a CUT marker."),
-        ("05-layered-score-studio.html", "Layered Score Studio", "All", "All four layers, stems export.")]
+        ("05-layered-score-studio.html", "Layered Score Studio", "All", "All four layers, stems export."),
+        ("06-pedal-sub-beds.html", "Pedal & Sub Beds", "Foundation", "Pedal tones and tuned sub pulses under dialogue."),
+        ("07-glass-pluck-textures.html", "Glass & Pluck Textures", "Texture", "In-key grain clouds that still loop cleanly."),
+        ("08-arpeggio-cascade.html", "Arpeggio Cascade", "Mid", "Multi-octave waterfall arps, bar-exact."),
+        ("09-call-and-response.html", "Call & Response", "Top", "Two-voice question and answer phrases."),
+        ("10-tension-beds.html", "Tension Beds", "Foundation", "In-key suspensions that resolve on demand."),
+        ("11-brand-sting-factory.html", "Brand Sting Factory", "Glue", "Logo and end-card stings that land on the tonic."),
+        ("12-tuned-percussion.html", "Tuned Percussion", "Mid", "Pitched kit hits and rhythmic loops."),
+        ("13-harmonic-swells.html", "Harmonic Swells", "Foundation", "Chord-tone swells that crest on the bar line."),
+        ("14-counter-melody-weaver.html", "Counter-Melody Weaver", "Top", "A second line against the day's progression."),
+        ("15-scene-underscore-mixer.html", "Scene Underscore Mixer", "Mix", "Two or three complementary stems for a scene.")]
 
 
 def session(day: str) -> dict:
@@ -61,7 +71,7 @@ def day_page(s: dict, prev: str | None, nxt: str | None) -> str:
 <header class="top"><a class="brand" href="../index.html">Tonal SFX <em>Suite</em></a><nav><a href="../index.html">Hub</a><a href="index.html">Daily</a><a href="https://github.com/kiniza-development/tonal-sfx">GitHub</a></nav></header>
 <section class="hero small"><div class="eyebrow">Daily session · <b>{s['date']}</b></div>
 <h1>{html.escape(s['mood'])} <em>in {html.escape(s['key'])}</em></h1>
-<p class="lede">{html.escape(s['mood_desc']).capitalize()}. Seed <code>{s['seed']}</code> · {s['bpm']} BPM · relative {html.escape(s['relative'])}. Every link below opens with today's seed and key, so all five layers stack without clashing.</p>
+<p class="lede">{html.escape(s['mood_desc']).capitalize()}. Seed <code>{s['seed']}</code> · {s['bpm']} BPM · relative {html.escape(s['relative'])}. Every link below opens with today's seed and key, so all fifteen apps share today's key and stack without clashing.</p>
 <div class="cta"><a class="btn" href="{app_href(s, APPS[4][0], '../')}">✦ Open today's score</a></div></section>
 <section class="grid5">{cards}</section>
 <section class="note"><h2>How to use today's session</h2><ol>
@@ -81,7 +91,7 @@ def index_page(sessions: list[dict]) -> str:
                        desc="A new keyed tonal SFX session every day.") + f"""
 <header class="top"><a class="brand" href="../index.html">Tonal SFX <em>Suite</em></a><nav><a href="../index.html">Hub</a><a href="index.html" aria-current="page">Daily</a><a href="https://github.com/kiniza-development/tonal-sfx">GitHub</a></nav></header>
 <section class="hero small"><div class="eyebrow">Archive · <b>{len(sessions)}</b> session{'s' if len(sessions) != 1 else ''}</div>
-<h1>Daily <em>tonal sessions</em></h1><p class="lede">Each morning a new key, tempo, mood and seed is published. Open any day to load all five apps with that session's settings. Newest first.</p></section>
+<h1>Daily <em>tonal sessions</em></h1><p class="lede">Each morning a new key, tempo, mood and seed is published. Open any day to load all fifteen apps with that session's settings. Newest first.</p></section>
 <ul class="days">{rows}</ul>
 <footer>Published daily at 08:00 UTC by GitHub Actions.</footer></div></body></html>
 """

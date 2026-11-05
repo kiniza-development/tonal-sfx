@@ -192,3 +192,80 @@ function glueDownlifter(ctx,dest,P,rng,t0,D,ev){
   ev.push({t:t0,dur:D,midi:sm,midi2:sm-12,layer:0});
   const n=noiseSrc(ctx,t0,end),bp=ctx.createBiquadFilter();bp.type='bandpass';bp.Q.value=5;bp.frequency.setValueAtTime(mtof(degMidi(k,0,7)),t0);bp.frequency.exponentialRampToValueAtTime(mtof(degMidi(k,0,4)),end);const ng=ctx.createGain();ng.gain.value=0.1*I;n.connect(bp);bp.connect(ng);ng.connect(g);
 }
+
+/* Shared by later apps (07, 10, 13, 15) */
+function genGlassGrains(ctx,out,P,rng,T){
+  const L=T.loopSec,k=P.key,ev=[],D=P.density??0.48,dec=0.35+P.decay*2.8,sc=P.scatter??0.4;
+  const bus=fxBus(ctx,out,{reverb:P.reverb??0.5,size:4.2,bright:0.72,delay:0.12,delayTime:L/Math.max(4,Math.round(L/0.375)),feedback:0.22});
+  const n=Math.round(L*(3+D*16)),step=L/n;
+  const centre=rng.int(0,4);const pool=[centre,centre+2,centre+4,centre+1,centre+7].map(d=>((d%7)+7)%7);
+  const names=pool.map(d=>NOTE_NAMES[(k.root+SCALES[k.mode][d])%12]);
+  const voice=P.grain,decMul=voice==='Crystal'?1.35:1;
+  for(let i=0;i<n;i++){
+    let t=i*step;if(sc>0.05)t=(t+rng.range(-step*sc*0.7,step*sc*0.7)+L)%L;
+    if(sc<0.25)t=Math.round(t/(L/64))*(L/64)%L;
+    const walk=Math.round((i/n)*P.evolve*6)*rng.pick([-1,1]);
+    const deg=pool[i%pool.length]+walk;
+    const oct=4+(rng.chance(0.25+D*0.2)?1:0)+(rng.chance(0.12)?1:0);
+    const m=degMidi(k,deg,oct),vel=(0.45+rng.range(0,0.5))*(0.55+D*0.5);
+    const kind=voice==='Mixed'?(rng.chance(0.55)?'Glass':'Pluck'):voice;
+    if(kind==='Glass')V.glass(ctx,bus,t,0.2,m,vel,{decay:dec*decMul});
+    else if(kind==='Crystal')V.bell(ctx,bus,t,0.3,m,vel*0.85,{ratio:rng.pick([2,2.5,3.5]),decay:dec*1.2,index:1.6});
+    else V.pluck(ctx,bus,t,0.12,m,vel,{bright:7+D*5,decay:dec*0.55,wave:'triangle'});
+    ev.push({t,dur:Math.min(1.2,dec*0.5),midi:m,layer:m<60?0:m<76?1:2});
+  }
+  return {events:ev,n,pool:names};
+}
+
+function genTension(ctx,out,P,rng,T){
+  const L=T.loopSec,k=P.key,ev=[],I=P.intensity??0.55,fade=Math.min(2.8,L/5);
+  const kinds={sus2:[0,1,4],sus4:[0,3,4],'7th':[0,2,4,6],'9th':[0,2,4,8]};
+  const seq=P.interval==='Mixed'?['sus4','sus2','7th','sus4']:null;
+  const nSeg=P.resolve==='Hold'?Math.max(1,P.interval==='Mixed'?4:2):4;
+  const seg=L/nSeg,bus=fxBus(ctx,out,{reverb:P.reverb??0.48,size:5.5,bright:0.35+P.bright*0.4});
+  const snap=f=>Math.max(1/L,Math.round(f*L)/L);
+  const mf=ctx.createBiquadFilter();mf.type='lowpass';mf.Q.value=0.8+P.motion*2;mf.frequency.value=280+P.bright*3400;mf.connect(bus);
+  const cyc=Math.max(1,Math.round(L/(16-10*P.motion))),lfo=osc(ctx,'sine',cyc/L,0,T.total||L+fade),lg=ctx.createGain();lg.gain.value=(280+P.bright*3400)*0.55*P.motion;lfo.connect(lg);lg.connect(mf.frequency);
+  const voice=(t0,t1,midi,gain,layer)=>{
+    const g=ctx.createGain(),fd=Math.min(fade, (t1-t0)*0.4);
+    g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(gain,t0+fd);g.gain.setValueAtTime(gain,t1);g.gain.linearRampToValueAtTime(0,t1+fd);
+    osc(ctx,'sine',snap(mtof(midi)),t0,t1+fd).connect(g);osc(ctx,'triangle',snap(mtof(midi)),t0,t1+fd,5).connect(g);g.connect(mf);
+    ev.push({t:t0,dur:t1-t0,midi,layer});
+  };
+  const root=degMidi(k,0,2);voice(0,L,root,0.16+I*0.08,0);voice(0,L,root-12,0.22+I*0.1,0);
+  const labels=[];
+  for(let s=0;s<nSeg;s++){
+    const t0=s*seg,t1=t0+seg;let resolved=false;
+    if(P.resolve==='Cadence'&&s>=nSeg-1)resolved=true;
+    if(P.resolve==='Half'&&s===Math.floor(nSeg/2))resolved=true;
+    const name=resolved?'triad':(seq?seq[s%seq.length]:P.interval);
+    const degs=resolved?[0,2,4]:(kinds[name]||kinds.sus4);
+    labels.push(name);
+    degs.forEach((d,i)=>{const oct=d>=7?4:3,m=degMidi(k,d,oct);voice(t0,t1,m,(0.055+I*0.05)*(i?0.85:1),resolved?2:1);});
+  }
+  return {events:ev,segs:nSeg,label:labels.join(' → ')};
+}
+
+function genSwells(ctx,out,P,rng,T){
+  const k=P.key,bar=T.barSec,bars=T.bars,L=T.loopSec,ev=[],prog=rng.pick(PROGS[k.mode]);
+  const win=P.crest==='Half bar'?bar/2:P.crest==='Two bars'?bar*2:bar;
+  const n=Math.max(1,Math.round(L/win)),W=L/n;
+  const bus=fxBus(ctx,out,{reverb:P.reverb??0.4,size:4.5,bright:0.45+P.bright*0.3});
+  const wave=P.character==='Silk'?'sine':P.character==='Brass'?'sawtooth':P.character==='Choir'?'sawtooth':'triangle';
+  const openF=900+P.bright*7000+P.brass*2500,closedF=180+P.bright*220;
+  let swells=0;
+  for(let s=0;s<n;s++){
+    const t0=s*W,peak=t0+W*0.92,t1=t0+W,deg=prog[Math.floor((t0+1e-6)/bar)%prog.length];
+    const notes=fold(chordMidis(k,deg,3,P.character==='Silk'?3:4),48,76);
+    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.Q.value=0.7+P.brass*3;lp.frequency.setValueAtTime(closedF,t0);lp.frequency.linearRampToValueAtTime(openF,peak);lp.frequency.linearRampToValueAtTime(closedF,t1+0.2);lp.connect(bus);
+    notes.forEach((m,i)=>{
+      const g=ctx.createGain();const pk=(0.055+P.brass*0.04)*(i?0.75:1);
+      g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(pk,peak);g.gain.linearRampToValueAtTime(0.0001,t1+0.15);
+      for(const c of(P.character==='Silk'?[0]:[-7,7]))osc(ctx,wave,mtof(m),t0,t1+0.2,c).connect(g);
+      g.connect(lp);ev.push({t:t0,dur:W,midi:m,layer:i===0?0:i===notes.length-1?2:1});
+    });
+    if(P.character==='Choir'){const v=rng.pick(VOWELS),sum=ctx.createGain();sum.gain.value=0.9;v.forEach((fq,i)=>{const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=fq;bp.Q.value=5+i*2;lp.connect(bp);bp.connect(sum);});sum.connect(bus);}
+    swells++;
+  }
+  return {events:ev,prog,n:swells};
+}
