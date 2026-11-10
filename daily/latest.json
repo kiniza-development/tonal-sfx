@@ -1,17 +1,18 @@
 {
   "latest": {
-    "date": "2026-11-08",
-    "seed": "2026-11-08",
-    "root": 4,
+    "date": "2026-11-10",
+    "seed": "2026-11-10",
+    "root": 8,
     "mode": "minor",
-    "key": "E minor",
-    "relative": "G major",
+    "key": "A\u266d minor",
+    "relative": "B major",
     "mood": "Glass",
     "mood_desc": "bright, crystalline, airy",
-    "bpm": 75,
-    "path": "daily/2026-11-08.html"
+    "bpm": 125,
+    "path": "daily/2026-11-10.html"
   },
   "days": [
+    "2026-11-10",
     "2026-11-08",
     "2026-11-07",
     "2026-11-06",
