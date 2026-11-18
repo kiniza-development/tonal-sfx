@@ -1,17 +1,18 @@
 {
   "latest": {
-    "date": "2026-11-17",
-    "seed": "2026-11-17",
-    "root": 7,
-    "mode": "minor",
-    "key": "G minor",
-    "relative": "B\u266d major",
-    "mood": "Noir",
-    "mood_desc": "low, slow and shadowed",
-    "bpm": 85,
-    "path": "daily/2026-11-17.html"
+    "date": "2026-11-18",
+    "seed": "2026-11-18",
+    "root": 0,
+    "mode": "major",
+    "key": "C major",
+    "relative": "A minor",
+    "mood": "Reveal",
+    "mood_desc": "build into a title card",
+    "bpm": 90,
+    "path": "daily/2026-11-18.html"
   },
   "days": [
+    "2026-11-18",
     "2026-11-17",
     "2026-11-16",
     "2026-11-15",
