@@ -1,17 +1,18 @@
 {
   "latest": {
-    "date": "2026-11-23",
-    "seed": "2026-11-23",
-    "root": 7,
+    "date": "2026-11-24",
+    "seed": "2026-11-24",
+    "root": 2,
     "mode": "major",
-    "key": "G major",
-    "relative": "E minor",
-    "mood": "Pulse",
-    "mood_desc": "driving, rhythmic, tight",
-    "bpm": 95,
-    "path": "daily/2026-11-23.html"
+    "key": "D major",
+    "relative": "B minor",
+    "mood": "Tension",
+    "mood_desc": "held breath before the cut",
+    "bpm": 110,
+    "path": "daily/2026-11-24.html"
   },
   "days": [
+    "2026-11-24",
     "2026-11-23",
     "2026-11-22",
     "2026-11-21",
