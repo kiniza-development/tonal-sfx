@@ -1,17 +1,18 @@
 {
   "latest": {
-    "date": "2026-11-25",
-    "seed": "2026-11-25",
-    "root": 1,
+    "date": "2026-11-26",
+    "seed": "2026-11-26",
+    "root": 2,
     "mode": "minor",
-    "key": "C\u266f minor",
-    "relative": "E major",
-    "mood": "Tension",
-    "mood_desc": "held breath before the cut",
-    "bpm": 105,
-    "path": "daily/2026-11-25.html"
+    "key": "D minor",
+    "relative": "F major",
+    "mood": "Glass",
+    "mood_desc": "bright, crystalline, airy",
+    "bpm": 85,
+    "path": "daily/2026-11-26.html"
   },
   "days": [
+    "2026-11-26",
     "2026-11-25",
     "2026-11-24",
     "2026-11-23",
